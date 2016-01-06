@@ -1,0 +1,168 @@
+Sub GetFromRecordSet() 'RECUPERANDO REGISTROS DO BANCO DE DADOS
+
+'DECLARAÇÃO DE VARIÁVEIS REL. AO BANCO DE DADOS
+Dim LastRow As Integer
+Dim MyConn, sSQL As String
+Dim WorkTarget As Worksheet
+Dim MinRange, MaxRange As Range
+Dim ADODBrst As ADODB.Recordset
+Dim ADODBcnn As ADODB.Connection
+
+'DECLARAÇÃO DE VARIÁVEIS REL. À PLANILHA
+Dim i, j, k, l As Integer
+
+'ATRIBUIÇÃO DE VALORES ÀS VARIÁVEIS REL. À PLANILHA
+Set WorkTarget = ThisWorkbook.Sheets("PESSOA FÍSICA")
+LastRow = WorkTarget.Range("A65536").End(xlUp).Row
+Set MinRange = ThisWorkbook.Sheets("PESSOA FÍSICA").Cells(4, 1)
+Set MaxRange = ThisWorkbook.Sheets("PESSOA FÍSICA").Cells(LastRow, 20)
+
+'ATRIBUIÇÃO DE VALORES ÀS VARIÁVEIS REL. AO BANCO DE DADOS
+MyConn = Left(ThisWorkbook.FullName, Len(ThisWorkbook.FullName) - Len(ThisWorkbook.Name)) & "PhoneBookDB.accdb"
+sSQL = "SELECT GivenName, FamilyName, OrganizationName, OrganizationTitle, Personal_E_Mail, Business_E_Mail, Status, Phone1, Phone2, Phone3, CellPhone1, CellPhone2, CellPhone3, Address, Number, District, ExtendedAddress, City, Region, PostalCode FROM PhoneBookDBPessoaFísica"
+
+'ACTIVEX DATA OBJECT DATA BASE - ADODB - CONEXÃO E DEFINIÇÃO DE REGISTROS
+Set ADODBcnn = New ADODB.Connection 'Define o caminho para o Banco de Dados e especifica a Engine de conexão.
+With ADODBcnn
+    .Provider = "Microsoft.ACE.OLEDB.12.0"
+    .Open MyConn
+End With
+
+Set ADODBrst = New ADODB.Recordset 'Define um conjunto de Registros.
+With ADODBrst
+    .CursorLocation = adUseServer 'Quando um conjunto de Registros está aberto, todos os registros são transferidos para a memória da máquina cliente.
+    .Open Source:=sSQL, ActiveConnection:=ADODBcnn, CursorType:=adOpenForwardOnly, LockType:=adLockOptimistic, Options:=adCmdText
+End With
+
+'INICIALIZAÇÃO
+Application.ScreenUpdating = False
+WorkTarget.Unprotect Password:="2364647872367"
+WorkTarget.Cells(4, 4).Select
+
+'RECUPERAÇÃO DE REGISTROS DO BANCO DE DADOS
+Range("B4").CopyFromRecordset ADODBrst
+ADODBrst.Close
+ADODBcnn.Close
+
+'FORMATAÇÃO DA PLANILHA
+'COLUNAS 1 A 20
+WorkTarget.Range(MinRange, MaxRange).Rows.RowHeight = 18
+WorkTarget.Range(MinRange, MaxRange).Borders(xlDiagonalDown).LineStyle = xlNone
+WorkTarget.Range(MinRange, MaxRange).Borders(xlDiagonalUp).LineStyle = xlNone
+With WorkTarget.Range(MinRange, MaxRange).Borders(xlEdgeLeft)
+    .LineStyle = xlContinuous
+    .ColorIndex = 0
+    .TintAndShade = 0
+    .Weight = xlThin
+End With
+With WorkTarget.Range(MinRange, MaxRange).Borders(xlEdgeTop)
+    .LineStyle = xlContinuous
+    .ColorIndex = 0
+    .TintAndShade = 0
+    .Weight = xlThin
+End With
+With WorkTarget.Range(MinRange, MaxRange).Borders(xlEdgeBottom)
+    .LineStyle = xlContinuous
+    .ColorIndex = 0
+    .TintAndShade = 0
+    .Weight = xlThin
+End With
+With WorkTarget.Range(MinRange, MaxRange).Borders(xlEdgeRight)
+    .LineStyle = xlContinuous
+    .ColorIndex = 0
+    .TintAndShade = 0
+    .Weight = xlThin
+End With
+With WorkTarget.Range(MinRange, MaxRange).Borders(xlInsideVertical)
+    .LineStyle = xlContinuous
+    .ColorIndex = 0
+    .TintAndShade = 0
+    .Weight = xlThin
+End With
+With WorkTarget.Range(MinRange, MaxRange).Borders(xlInsideHorizontal)
+    .LineStyle = xlContinuous
+    .ColorIndex = 0
+    .TintAndShade = 0
+    .Weight = xlThin
+End With
+With WorkTarget.Range(MinRange, MaxRange).Interior
+    .Pattern = xlNone
+    .TintAndShade = 0
+    .PatternTintAndShade = 0
+End With
+With WorkTarget.Range(MinRange, MaxRange).Font
+    .Bold = False
+    .Name = "Segoe UI Semilight"
+    .Size = 9
+    .Strikethrough = False
+    .Superscript = False
+    .Subscript = False
+    .OutlineFont = False
+    .Shadow = False
+    .Underline = xlUnderlineStyleNone
+    .ColorIndex = xlAutomatic
+    .TintAndShade = 0
+    .ThemeFont = xlThemeFontNone
+End With
+With WorkTarget.Range(MinRange, MaxRange)
+    .HorizontalAlignment = xlCenter
+    .VerticalAlignment = xlCenter
+    .Orientation = 0
+    .AddIndent = False
+    .IndentLevel = 0
+    .ShrinkToFit = False
+    .ReadingOrder = xlContext
+    .Locked = True
+End With
+'ALINHAMENTO ESPECIAL | COLUNA 2
+With WorkTarget.Range(WorkTarget.Cells(4, 2), WorkTarget.Cells(LastRow, 2))
+    .HorizontalAlignment = xlLeft
+    .VerticalAlignment = xlCenter
+    .Orientation = 0
+    .AddIndent = False
+    .IndentLevel = 0
+    .ShrinkToFit = False
+    .ReadingOrder = xlContext
+End With
+'COLUNA 1
+WorkTarget.Range(Cells(4, 1), Cells(LastRow, 1)).NumberFormat = "0"
+'COLUNA 2 a 7
+For i = 2 To 7
+WorkTarget.Range(Cells(4, i), Cells(LastRow, i)).NumberFormat = "@"
+Next i
+'COLUNA 8 a 10
+For j = 8 To 10
+WorkTarget.Range(Cells(4, j), Cells(LastRow, j)).NumberFormat = "(##) ####-####"
+Next j
+'COLUNA 11 a 13
+For k = 11 To 13
+WorkTarget.Range(Cells(4, k), Cells(LastRow, k)).NumberFormat = "(##) #####-####"
+Next k
+'COLUNA 14
+WorkTarget.Range(Cells(4, 14), Cells(LastRow, 14)).NumberFormat = "@"
+'COLUNA 15
+WorkTarget.Range(Cells(4, 15), Cells(LastRow, 15)).NumberFormat = "0"
+'COLUNA 16 a 19
+For l = 16 To 19
+WorkTarget.Range(Cells(4, l), Cells(LastRow, l)).NumberFormat = "@"
+Next l
+'COLUNA 20
+WorkTarget.Range(Cells(4, 19), Cells(LastRow, 20)).NumberFormat = "00000-000"
+'NUMERAÇÃO DE ORDEM
+If LastRow = 3 Then
+    MinRange.Value = "1"
+Else
+    If LastRow = 4 Then
+        MinRange.Value = "1"
+        WorkTarget.Cells(5, 1).Value = "2"
+    Else:
+        MinRange.Value = "1"
+        WorkTarget.Cells(5, 1).Value = "2"
+        Range(MinRange, WorkTarget.Cells(5, 1)).AutoFill Destination:=Range(MinRange, WorkTarget.Cells(LastRow, 1)), Type:=xlFillValues
+    End If
+End If
+
+'FINALIZAÇÃO
+WorkTarget.Protect Password:="2364647872367", AllowFiltering:=True
+Application.ScreenUpdating = True
+End Sub
